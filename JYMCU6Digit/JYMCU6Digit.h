@@ -1,35 +1,47 @@
-#ifndef JYMCU6Digit_h
-#define JYMCU6Digit_h
+#ifndef JYMCU7SEGMENT_H
+#define JYMCU7SEGMENT_H
 
 #include <Arduino.h>
 
-class JYMCU6Digit {
+class JYMCU7SEGMENT {
 public:
-    JYMCU6Digit(uint8_t sdi, uint8_t clk, uint8_t le, uint8_t oe);
+    JYMCU7SEGMENT(uint8_t sdi, uint8_t clk, uint8_t le, uint8_t oe);
 
-    void begin(uint8_t digits = 6);
+    void begin(uint16_t digits);
 
     void clear();
-    void render();     // <-- penting
+    void render();
 
-    void printDigit(uint8_t pos, uint8_t val);
-    void setChar(uint8_t pos, char ch, bool dot = false);
-    void setRaw(uint8_t pos, uint8_t raw);
-    void printRaw(uint8_t digit, uint8_t pattern);
+    // Full display printing (right aligned)
+    void printInt(long num);
+    void printFloat(float num, uint8_t decimals = 1);
+    void printString(const char* txt);
 
-    void printNumber(long num, bool leadingZeros=false);
+    // Per-digit printing (left-to-right indexing)
+    void printIntAt(uint16_t pos, long value);
+    void printStringAt(uint16_t pos, const char* str);
+    void printCharAt(uint16_t pos, const char* str);
+    void printCharAt(uint16_t pos, char c, bool dot = false);
+    void printRawAt(uint16_t pos, uint8_t pattern);
+
+    // Manual render control
+    void enableAutoRender(bool enable);
+    void update();
+
+    // Display control
+    void clearRange(uint16_t start, uint16_t length);
+    void setBrightness(uint8_t level);
     void displayOn();
     void displayOff();
 
 private:
     uint8_t pinSDI, pinCLK, pinLE, pinOE;
-    uint8_t numDigits;
+    uint16_t numDigits;
 
-    uint8_t buffer[6];  // <-- FIX UTAMA
+    bool autoRender = true;
+    uint8_t* buffer;
 
     void shiftOutByte(uint8_t data);
-    void latch();
-
 };
 
 #endif
